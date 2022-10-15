@@ -9,18 +9,18 @@ import (
 // начало решения аналог time.AfterFunc
 /*в лоб*/
 func delay(dur time.Duration, fn func()) func() {
-	chancel_ch := make(chan struct{}, 1)
+	cancel_ch := make(chan struct{}, 1)
 
 	cancel_fn := func() {
-		if len(chancel_ch) == 0 {
-			chancel_ch <- struct{}{}
+		if len(cancel_ch) == 0 {
+			cancel_ch <- struct{}{}
 		}
 	}
 
 	go func() {
 		time.Sleep(dur)
 		select {
-		case <-chancel_ch:
+		case <-cancel_ch:
 			return
 		default:
 			fn()
