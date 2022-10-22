@@ -17,7 +17,17 @@ import (
 func asLegacyDate(t time.Time) string {
 	s := t.Unix()
 	ns := t.Nanosecond()
-	
+
+	rem := ns % 10
+	for {
+		if (ns !=0) && (rem == 0) {
+			ns = ns / 10
+			rem = ns % 10
+		} else {
+			break
+		}
+	}
+
 	return fmt.Sprintf("%d.%d", s, ns)
 }
 
@@ -32,14 +42,60 @@ func parseLegacyDate(d string) (time.Time, error) {
 
 	s, _ := strconv.Atoi(parts[1])
 	ns, _ := strconv.Atoi(parts[2])
-	dig := len(parts[2])
+	dig := len(parts[2])	// разрядность
 
-	//
-	t := time.Unix(int64(s), int64(ns*int(math.Pow10(9-dig))))
+	// 
+	t := time.Unix(int64(s), int64(ns*int(math.Pow10(9 - dig))))
 	return t, nil
 }
 
 // конец решения
+
+/*
+// asLegacyDate преобразует время в легаси-дату
+func asLegacyDate(t time.Time) string {
+    sec := t.Unix()
+    nano := t.UnixNano() - sec*1e9
+    if nano == 0 {
+        return fmt.Sprintf("%d.0", sec)
+    }
+    str := fmt.Sprintf("%d.%d", sec, nano)
+    return strings.TrimRight(str, "0")
+}
+
+// parseLegacyDate преобразует легаси-дату во время.
+// Возвращает ошибку, если легаси-дата некорректная.
+func parseLegacyDate(d string) (time.Time, error) {
+    strSec, strNano, ok := strings.Cut(d, ".")
+    if !ok {
+        return time.Time{}, fmt.Errorf("invalid date: %v", d)
+    }
+
+    sec, err := strconv.ParseInt(strSec, 10, 64)
+    if err != nil {
+        return time.Time{}, fmt.Errorf("invalid date: %v", d)
+    }
+
+    if len(strNano) == 0 {
+        return time.Time{}, fmt.Errorf("invalid date: %v", d)
+    }
+    strNano = padZerosRight(strNano, 9)
+    nano, err := strconv.ParseInt(strNano, 10, 64)
+    if err != nil {
+        return time.Time{}, fmt.Errorf("invalid date: %v", d)
+    }
+
+    return time.Unix(sec, nano), nil
+}
+
+// padZerosRight отбивает строку нулями справа до указанной длины
+func padZerosRight(str string, length int) string {
+    if len(str) >= length {
+        return str
+    }
+    return str + strings.Repeat("0", length-len(str))
+}
+*/
 
 func Test_asLegacyDate(t *testing.T) {
 	samples := map[time.Time]string{
