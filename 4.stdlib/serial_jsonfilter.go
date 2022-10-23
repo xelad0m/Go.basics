@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -11,13 +12,40 @@ import (
 
 // Email описывает письмо
 type Email struct {
-	// ...
+	From    string
+	To      string
+	Subject string
 }
 
 // FilterEmails читает все письма из src и записывает в dst тех,
 // кто проходит проверку predicate
 func FilterEmails(dst io.Writer, src io.Reader, predicate func(e Email) bool) (int, error) {
-	return 0, nil
+	dec := json.NewDecoder(src) // str -> obj
+	enc := json.NewEncoder(dst) // obj -> str
+	counter := 0
+
+	for {
+		var mail Email
+		err := dec.Decode(&mail)
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return counter, err
+		}
+
+		if !predicate(mail) {
+			continue
+		}
+
+		err = enc.Encode(mail)
+		if err != nil {
+			return counter, err
+		}
+		counter++
+	}
+
+	return counter, nil
 }
 
 // конец решения
