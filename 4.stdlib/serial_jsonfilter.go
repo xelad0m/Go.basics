@@ -12,9 +12,9 @@ import (
 
 // Email описывает письмо
 type Email struct {
-	From    string
-	To      string
-	Subject string
+	From    string	`json:"from"`
+	To      string	`json:"to"`
+	Subject string	`json:"subject"`
 }
 
 // FilterEmails читает все письма из src и записывает в dst тех,
@@ -31,7 +31,7 @@ func FilterEmails(dst io.Writer, src io.Reader, predicate func(e Email) bool) (i
 			break
 		}
 		if err != nil {
-			return counter, err
+			return counter, fmt.Errorf("invalid input JSON")
 		}
 
 		if !predicate(mail) {
@@ -40,7 +40,7 @@ func FilterEmails(dst io.Writer, src io.Reader, predicate func(e Email) bool) (i
 
 		err = enc.Encode(mail)
 		if err != nil {
-			return counter, err
+			return counter, fmt.Errorf("broken writer")
 		}
 		counter++
 	}
