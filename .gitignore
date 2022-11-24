@@ -1,9 +1,6 @@
 # Ignore all
 *
 
-# Unignore all with extensions
-!*.*
-
 # Except these ...
 !.gitignore
 
@@ -26,6 +23,10 @@
 !*.html
 !*.css
 !*.js
+
+!*.go
+!*.mod
+!*.prof
 
 !*.sql
 
